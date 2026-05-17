@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="my">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S&T Memories - Admin Panel</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="manifest" href="manifest.json" />
+
+    <link rel="apple-touch-icon" href="assets/icon512.png" />
+
+    <link rel="icon" sizes="512x512" href="assets/icon512.png" />
+
+    <meta name="theme-color" content="#b30000" />
+    <style>
+      .admin-container {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 25px;
+        background-color: linear-gradient(135deg, #fff5f7 0%, #f8c1e9 100%);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px #b30000;
+        backdrop-filter: blur(10px);
+        font-family: "MyCustomFont", "Noto Serif Myanmar", sans-serif;
+      }
+      .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--ink);
+        font-weight: bold;
+        font-size: 14px;
+      }
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        box-sizing: border-box;
+        outline: none;
+        font-size: 14px;
+      }
+      .form-group textarea {
+        height: 120px;
+        resize: vertical;
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 5px;
+      }
+      .radio-label {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-weight: normal !important;
+      }
+      .radio-label input {
+        width: auto;
+        cursor: pointer;
+      }
+
+      .date-preview {
+        font-size: 13px;
+        color: var(--accent);
+        margin-top: 5px;
+        font-weight: bold;
+      }
+      .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 10px
+      }
+      .submit-btn:active {
+        transform: scale(0.98);
+      }
+      .submit-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      /* ✨ File Input အဟောင်းကြီးကို မျက်စိထဲက ဖျောက်ထားလိုက်ခြင်း */
+      #m-files {
+        display: none;
+      }
+
+      /* ✨ ဖိုင်ရွေးချယ်ရန် Label ကို ခလုတ်အမိုက်စားအဖြစ် ပြောင်းလဲလိုက်ခြင်း */
+      #file-label {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: #fff;
+        color: var(--accent);
+        border: 2px dashed var(--accent);
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+        transition: all 0.2s ease-in-out;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* ခလုတ်ပေါ် Mouse တင်ရင် ဖြစ်မည့်ပုံစံ */
+      #file-label:hover {
+        background: #fff0f2;
+        transform: translateY(-1px);
+      }
+
+      /* ခလုတ်နှိပ်လိုက်ရင် ဖြစ်မည့်ပုံစံ */
+      #file-label:active {
+        transform: scale(0.99);
+      }
+
+      /* File ရွေးလို့မရအောင် ပိတ်ထားချိန် (စာသီးသန့် ရွေးထားချိန်) စတိုင် */
+      #file-label[disabled="true"] {
+        background: #f5f5f5 !important;
+        color: #aaa !important;
+        border-color: #ddd !important;
+        cursor: not-allowed !important;
+      }
+
+      .progress-container {
+        display: none;
+        margin-top: 15px;
+        background: #eee;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 12px;
+        width: 100%;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ff4d6d, var(--accent));
+        transition: width 0.3s ease-in-out;
+      }
+
+      #status-msg {
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 1.5;
+        white-space: pre-line;
+      }
+
+      /* Radio input ကို နှိပ်တဲ့အခါ အပြာရောင် လေးထောင့်ကွက်/လိုင်းများ မပေါ်စေရန် */
+      .radio-label input:focus,
+      .radio-label input:active,
+      .radio-label input:checked {
+        outline: none !important;
+        box-shadow: none !important;
+        -webkit-tap-highlight-color: transparent; /* ဖုန်းနဲ့နှိပ်ရင် အပြာရောင်အကွက် ပေါ်တာကို ပိတ်ခြင်း */
+      }
+
+      /* Label တစ်ခုလုံးကို နှိပ်ရင်လည်း Highlight မပြအောင် တစ်ခါတည်း ပိတ်ထားပေးခြင်း */
+      .radio-label {
+        -webkit-user-select: none; /* Safari */
+        user-select: none; /* Standard */
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* ✨ Noti Box ပွင့်လာလျှင် အချိုးကျ ပေါ့ပေါ့ပါးပါး ပွင့်လာစေမည့် ကာတွန်း Effect */
+      @keyframes popIn {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body style="background: var(--body-bg); min-height: 100vh; padding: 10px">
+    <div style="max-width: 500px; margin: 10px auto 0 auto; text-align: left">
+      <a
+        href="../"
+        style="
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          color: var(--accent);
+          font-family:
+            &quot;MyCustomFont&quot;, &quot;Noto Serif Myanmar&quot;, sans-serif;
+          font-size: 14px;
+          font-weight: bold;
+          background: white;
+          padding: 8px 15px;
+          border-radius: 30px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        "
+      >
+        ⬅ နောက်သို့
+      </a>
+    </div>
+    <div class="admin-container">
+      <h2 style="color: var(--accent); text-align: center; margin-bottom: 20px">
+        အမှတ်တရ အသစ်များ တင်ရန်
+      </h2>
+
+      <hr
+        style="
+          border: 0;
+          border-top: 1px dashed rgba(0, 0, 0, 0.1);
+          margin: 20px 0;
+        "
+      />
+
+      <div class="form-group">
+        <label for="m-date">နေ့စွဲ ရွေးချယ်ပါ</label>
+        <input type="date" id="m-date" onchange="previewMyanmarDate()" />
+        <div id="mm-date-preview" class="date-preview"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="m-location">တည်နေရာ</label>
+        <input
+          type="text"
+          id="m-location"
+          value="ရန်ကုန်"
+          placeholder="ဥပမာ - ရန်ကုန်"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="m-title">ခေါင်းစဉ်</label>
+        <input type="text" id="m-title" placeholder="အမှတ်တရ ခေါင်းစဉ်လေး..." />
+      </div>
+
+      <div class="form-group">
+        <label for="m-text">အကြောင်းအရာ</label>
+        <textarea
+          id="m-text"
+          placeholder="ဒီနေ့လေးမှာ ဘာတွေဖြစ်ခဲ့လဲ..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>အမျိုးအစား</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="media-type"
+              value="text"
+              checked
+              onchange="handleMediaTypeChange()"
+            />
+            စာသီးသန့်
+          </label>
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="media-type"
+              value="image"
+              onchange="handleMediaTypeChange()"
+            />
+            ဓာတ်ပုံ
+          </label>
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="media-type"
+              value="video"
+              onchange="handleMediaTypeChange()"
+            />
+            ဗီဒီယို
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label id="file-label" for="m-files">+ ဖိုင်ရွေးချယ်ရန်</label>
+        <input
+          type="file"
+          id="m-files"
+          accept="image/*,video/*"
+          multiple
+          onchange="validateFiles()"
+        />
+        <small
+          id="file-help"
+          style="color: #666; font-size: 11px; display: block; margin-top: 5px"
+        >
+          * ဓာတ်ပုံတစ်ပုံတည်း (သို့မဟုတ်) ပုံအများကြီးကို တစ်ပြိုင်နက်
+          ရွေးချယ်နိုင်ပါသည်။
+        </small>
+      </div>
+
+      <div
+        class="form-group"
+        style="background: #fff0f2; padding: 12px; border-radius: 10px"
+      >
+        <input type="password" id="gh-token" placeholder="key ထည့်ပါ .. " />
+      </div>
+      <small
+        id="file-help"
+        style="
+          color: #b30000;
+          font-size: 13px;
+          display: block;
+          margin-top: 5px;
+          font-weight: bold;
+        "
+      >
+        * ဖိုင်များကိုမတင်ခင် သေချာစစ်ဆေးပြီးမှ တင်ပါ။
+      </small>
+
+      <button id="upload-btn" class="submit-btn" onclick="startUploadProcess()">
+        တင်မည်
+      </button>
+
+      <div id="status-msg" style="text-align: center"></div>
+    </div>
+
+    <div
+      id="noti-overlay"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <div
+        id="noti-box"
+        style="
+          background: white;
+          padding: 25px;
+          border-radius: 15px;
+          max-width: 350px;
+          width: 85%;
+          text-align: center;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+          animation: popIn 0.3s ease-in-out;
+        "
+      >
+        <div id="noti-icon" style="font-size: 40px; margin-bottom: 10px">
+          ⚠️
+        </div>
+        <p
+          id="noti-text"
+          style="
+            font-size: 15px;
+            font-weight: bold;
+            color: #333;
+            margin: 0 0 15px 0;
+            white-space: pre-line;
+            line-height: 1.6;
+          "
+        ></p>
+        <div
+          id="p-container"
+          style="
+            display: none;
+            margin: 15px 0;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 12px;
+            width: 100%;
+          "
+        >
+          <div
+            id="p-bar"
+            style="
+              height: 100%;
+              width: 0%;
+              background: linear-gradient(90deg, #ff4d6d, var(--accent));
+              transition: width 0.3s ease-in-out;
+            "
+          ></div>
+        </div>
+        <button
+          id="noti-close-btn"
+          onclick="closeNoti()"
+          style="
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 25px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            margin: 0 auto;
+          "
+        >
+          ပိတ်မည်
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // ဝဘ်ဆိုက် စပွင့်ချိန်တွင် ဘာ Key မှ အလိုအလျောက် ဝင်မနေစေရန် ဖြုတ်ချလိုက်ခြင်း
+      document.getElementById("gh-token").value = "";
+
+      handleMediaTypeChange();
+
+      function convertToMyanmarDate(dateStr) {
+        if (!dateStr) return "";
+        const parts = dateStr.split("-");
+        const year = parts[0];
+        const month = parseInt(parts[1], 10);
+        const day = parseInt(parts[2], 10);
+
+        const mmMonths = [
+          "",
+          "ဇန်နဝါရီ",
+          "ဖေဖော်ဝါရီ",
+          "မတ်",
+          "ဧပြီ",
+          "မေ",
+          "ဇွန်",
+          "ဇူလိုင်",
+          "သြဂုတ်",
+          "စက်တင်ဘာ",
+          "အောက်တိုဘာ",
+          "နိုဝင်ဘာ",
+          "ဒီဇင်ဘာ",
+        ];
+        const mmNums = {
+          0: "၀",
+          1: "၁",
+          2: "၂",
+          3: "၃",
+          4: "၄",
+          5: "၅",
+          6: "၆",
+          7: "၇",
+          8: "၈",
+          9: "၉",
+        };
+        const toMmNum = (num) =>
+          num
+            .toString()
+            .split("")
+            .map((d) => mmNums[d] || d)
+            .join("");
+
+        return `${toMmNum(day)} ${mmMonths[month]} ${toMmNum(year)}`;
+      }
+
+      function previewMyanmarDate() {
+        const dateVal = document.getElementById("m-date").value;
+        const mmDate = convertToMyanmarDate(dateVal);
+        document.getElementById("mm-date-preview").innerText = mmDate
+          ? `- ${mmDate} `
+          : "နေ့စွဲရွေးပေးပါ";
+      }
+
+      function handleMediaTypeChange() {
+        document.getElementById("file-label").innerText = "+ ဖိုင်ရွေးချယ်ရန်";
+        const selectedType = document.querySelector(
+          'input[name="media-type"]:checked',
+        ).value;
+        const fileInput = document.getElementById("m-files");
+        const help = document.getElementById("file-help");
+        const status = document.getElementById("status-msg");
+
+        fileInput.value = "";
+        status.innerText = "";
+
+        if (selectedType === "text") {
+          // 📝 စာသီးသန့်ဖြစ်လျှင် ဖိုင်ရွေးခလုတ်ကို ပိတ်ထားမည်
+          fileInput.setAttribute("disabled", "true");
+          document
+            .getElementById("file-label")
+            .setAttribute("disabled", "true");
+          help.innerText = "* ဖိုင်ရွေးချယ်ရန် မလိုပါ။";
+        } else {
+          // ✨ ဓာတ်ပုံ သို့မဟုတ် ဗီဒီယိုဖြစ်လျှင် ဖိုင်ရွေးခလုတ်ကို လုံးဝပြန်ဖွင့်ပေးမည်
+          fileInput.removeAttribute("disabled");
+          document.getElementById("file-label").removeAttribute("disabled");
+
+          // အမျိုးအစားအလိုက် အကူအညီစာသားကိုပါ တစ်ခါတည်း ပြောင်းပေးခြင်း
+          // ✨ အမျိုးအစားအလိုက် ရွေးချယ်နိုင်မည့် ဖိုင် Format ကို Device ထံ တောင်းဆိုခြင်း
+          if (selectedType === "image") {
+            fileInput.setAttribute("accept", "image/*"); // 📸 ဓာတ်ပုံပဲ ပြခိုင်းမည်
+            help.innerText = "* ဓာတ်ပုံ ၁ ပုံမှ ၆ ပုံအထိ ရွေးချယ်နိုင်ပါသည်။";
+          } else if (selectedType === "video") {
+            fileInput.setAttribute("accept", "video/*"); // 🎥 ဗီဒီယိုပဲ ပြခိုင်းမည်
+            help.innerText = "* mp4 ဖိုင်အမျိုးအစား/ Max 50MB";
+          }
+        }
+      }
+
+      function validateFiles() {
+        const selectedType = document.querySelector(
+          'input[name="media-type"]:checked',
+        ).value;
+        const fileInput = document.getElementById("m-files");
+        const status = document.getElementById("status-msg");
+        const files = fileInput.files;
+
+        if (files.length === 0) return true;
+
+        for (let i = 0; i < files.length; i++) {
+          const fileType = files[i].type;
+
+          // မူရင်းကုဒ်ထဲက status.innerText = ... နေရာများတွင် showNoti ကို အစားထိုးပါ
+          if (selectedType === "image" && !fileType.startsWith("image/")) {
+            showNoti("ဓာတ်ပုံဖိုင်ကိုသာ ရွေးချယ်ပေးပါ။", "warn", true);
+            fileInput.value = "";
+            return false;
+          }
+          if (selectedType === "video" && !fileType.startsWith("video/")) {
+            showNoti("ဗီဒီယိုဖိုင်ကိုသာ ရွေးချယ်ပေးပါ။", "warn", true);
+            fileInput.value = "";
+            return false;
+          }
+        }
+        // ✨ [ဖြည့်စွက်ကုဒ်] ရွေးချယ်လိုက်သော ဖိုင်နာမည်ကို ခလုတ်ပေါ်တွင် ပြောင်းလဲပြသပေးမည့်စနစ်
+        const fileLabel = document.getElementById("file-label");
+        if (files.length === 1) {
+          // ဖိုင် ၁ ပုံတည်းဆိုလျှင် ဖိုင်နာမည်ကို တိုက်ရိုက်ပြပါမည်
+          fileLabel.innerText = `${files[0].name}`;
+        } else if (files.length > 1) {
+          // ဖိုင်အများကြီးဆိုလျှင် အရေအတွက်ကို ပြပေးပါမည်
+          fileLabel.innerText = `(${files.length} ဖိုင်) ရွေးချယ်ပြီးပါပြီ`;
+        } else {
+          // ဖိုင်မရှိလျှင် မူလစာသားအတိုင်း ပြန်ပြောင်းပါမည်
+          fileLabel.innerText = "+ ဖိုင်ရွေးချယ်ရန်";
+        }
+        status.innerText = "";
+        return true;
+      }
+
+      function utf8_to_b64(str) {
+        return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
+      }
+      function b64_to_utf8(str) {
+        return new TextDecoder().decode(
+          Uint8Array.from(atob(str), (c) => c.charCodeAt(0)),
+        );
+      }
+
+      function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result.split(",")[1]);
+          reader.onerror = (error) => reject(error);
+        });
+      }
+
+      async function startUploadProcess() {
+        const GH_USER = "swelmyelhtet";
+        const GH_REPO = "ourmemo";
+
+        const token = document.getElementById("gh-token").value.trim();
+        const dateVal = document.getElementById("m-date").value;
+        const location = document.getElementById("m-location").value.trim();
+        const title = document.getElementById("m-title").value.trim();
+        const text = document.getElementById("m-text").value.trim();
+        const selectedMediaType = document.querySelector(
+          'input[name="media-type"]:checked',
+        ).value;
+        const fileInput = document.getElementById("m-files");
+        const status = document.getElementById("status-msg");
+        const uploadBtn = document.getElementById("upload-btn");
+
+        const pContainer = document.getElementById("p-container");
+        const pBar = document.getElementById("p-bar");
+
+        if (!validateFiles()) return;
+
+        try {
+          // GitHub Repository API ကို အရင်ဆုံး အမြန်လှမ်းခေါ်ပြီး Token ကို စစ်ဆေးခြင်း
+          const checkRepoUrl = `https://api.github.com/repos/${GH_USER}/${GH_REPO}`;
+          const checkRes = await fetch(checkRepoUrl, {
+            headers: { Authorization: `token ${token}` },
+          });
+
+          if (checkRes.status === 401 || checkRes.status === 403) {
+            showNoti(
+              "Key မမှန်ကန်ပါ သို့မဟုတ် သက်တမ်းကုန်ဆုံးနေပါသည်။\nကျေးဇူးပြု၍ Key ပြန်စစ်ပေးပါ။",
+              "error",
+              true,
+            );
+            return;
+          } else if (checkRes.status === 404) {
+            showNoti(
+              "GitHub User သို့မဟုတ် Repository Name ကို ရှာမတွေ့ပါ။",
+              "error",
+              true,
+            );
+            return;
+          } else if (!checkRes.ok) {
+            showNoti("ချိတ်ဆက်မှု အခက်အခဲရှိနေပါသည်။", "error", true);
+            return;
+          }
+        } catch (checkErr) {
+          showNoti(
+            "အင်တာနက် လိုင်းမကောင်းပါသဖြင့် နောက်မှ ပြန်တင်ပါ။",
+            "error",
+            true,
+          );
+          return;
+        }
+
+        const mmDate = convertToMyanmarDate(dateVal);
+
+        // ✨ fileInput.files.length === 0 ဖြစ်ပြီး text မဟုတ်ရင်မှ Error ပြခိုင်းပါမယ်
+        if (
+          !token ||
+          !dateVal ||
+          !location ||
+          !title ||
+          !text ||
+          (selectedMediaType !== "text" && fileInput.files.length === 0)
+        ) {
+          showNoti(
+            "အချက်အလက်အားလုံးနှင့် ဖိုင်ကို ပြည့်စုံအောင် ဖြည့်သွင်းပေးပါ။",
+            "warn",
+            true,
+          );
+          return;
+        }
+
+        uploadBtn.disabled = true;
+
+        // uploadBtn.disabled = true; အောက်နားတွင် ထည့်ပါ
+        showNoti(
+          "ဖိုင်များကို စတင် တင်နေပါပြီ...\n ခဏစောင့်ပါ။",
+          "warn",
+          false,
+        ); // showButton ကို false ထားလို့ ပိတ်လို့မရသေးပါ
+
+        pContainer.style.display = "block";
+        pBar.style.width = "0%";
+
+        try {
+          const files = fileInput.files;
+          let uploadedPaths = [];
+          const totalSteps = files.length + 1;
+
+          // ✨ စာသီးသန့် (text) မဟုတ်မှသာ GitHub ပေါ်သို့ ဖိုင်လှမ်းတင်ပါမည်
+          if (selectedMediaType !== "text") {
+            // ၁။ ဖိုင်များကို Assets Folder ထဲ တင်ခြင်း
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i];
+              const timestamp = Date.now() + i;
+              const extension = file.name.split(".").pop();
+
+              const newFileName = `img_${timestamp}.${extension}`;
+              const targetPath = `assets/${newFileName}`;
+
+              const currentPercent = Math.round((i / totalSteps) * 100);
+              pBar.style.width = `${currentPercent}%`;
+              showNoti(
+                `⏳ ဖိုင် တင်နေပါသည် (${i + 1}/${files.length}) - (${currentPercent}%)`,
+                "warn",
+                false,
+              );
+
+              const fileBase64 = await fileToBase64(file);
+
+              const fileApiUrl = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${targetPath}`;
+              const filePutRes = await fetch(fileApiUrl, {
+                method: "PUT",
+                headers: {
+                  Authorization: `token ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  message: `Upload media for: ${title}`,
+                  content: fileBase64,
+                }),
+              });
+
+              if (!filePutRes.ok)
+                throw new Error(
+                  showNoti(
+                    `ဖိုင်နံပါတ် (${i + 1}) ကို တင်ရတာ မအောင်မြင်ပါ။`,
+                    "error",
+                    true,
+                  ),
+                  `ဖိုင်နံပါတ် (${i + 1}) ကို တင်ရတာ မအောင်မြင်ပါ။`,
+                );
+              uploadedPaths.push(targetPath);
+            }
+          }
+
+          let finalType = selectedMediaType;
+          if (selectedMediaType === "image" && files.length > 1) {
+            finalType = "carousel";
+          }
+
+          const finalStagePercent = Math.round(
+            ((totalSteps - 1) / totalSteps) * 100,
+          );
+          pBar.style.width = `${finalStagePercent}%`;
+
+          showNoti(
+            `⏳ ဖိုင် တင်နေပါသည် (${finalStagePercent}%)`,
+            "warn",
+            false,
+          );
+
+          const jsonApiUrl = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/data.json`;
+
+          const jsonGetRes = await fetch(jsonApiUrl, {
+            headers: { Authorization: `token ${token}` },
+          });
+          if (!jsonGetRes.ok) throw new Error("data.json ဖိုင်ကို ရှာမတွေ့ပါ။");
+
+          const jsonFileData = await jsonGetRes.json();
+          const currentSHA = jsonFileData.sha;
+          let memoriesList = JSON.parse(b64_to_utf8(jsonFileData.content));
+
+          let newMemory = {
+            date: mmDate,
+            isoDate: dateVal,
+            location: location,
+            title: title,
+            text: text,
+            type: finalType,
+          };
+
+          if (finalType === "carousel") {
+            newMemory.images = uploadedPaths;
+          } else {
+            newMemory.src = uploadedPaths[0];
+          }
+
+          // ✨ [အဓိကပြင်ဆင်ချက်] အဟောင်းတွေအပေါ်၊ အသစ်တွေအောက် ရောက်အောင် data.json ရဲ့ အောက်ဆုံးကိုပဲ push လုပ်သွားပါမည်
+          memoriesList.push(newMemory);
+
+          const updatedContentB64 = utf8_to_b64(
+            JSON.stringify(memoriesList, null, 2),
+          );
+
+          const jsonPutRes = await fetch(jsonApiUrl, {
+            method: "PUT",
+            headers: {
+              Authorization: `token ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: `Add new memory data at end: ${title} (${finalType})`,
+              content: updatedContentB64,
+              sha: currentSHA,
+            }),
+          });
+
+          if (jsonPutRes.ok) {
+            pBar.style.width = "100%";
+            status.style.color = "green";
+
+            showNoti(
+              "အောင်မြင်စွာ တင်ပြီးပါပြီ!\n\nပင်မစာမျက်နှာပေါ်တွင် မြင်ရရန် ၁ မိနစ်မှ ၂ မိနစ်ခန့် ကြာတတ်ပါသည်။",
+              "success",
+              true,
+            );
+
+            setTimeout(() => {
+              document.getElementById("m-date").value = "";
+              document.getElementById("m-title").value = "";
+              document.getElementById("m-text").value = "";
+              fileInput.value = "";
+              document.getElementById("file-label").innerText =
+                "+ ဖိုင်ရွေးချယ်ရန်";
+              document.getElementById("mm-date-preview").innerText =
+                "နေ့စွဲရွေးပေးပါ";
+              pContainer.style.display = "none";
+              closeNoti();
+            }, 5000);
+          } else {
+            throw new Error("data.json ကို Update လုပ်ရတာ မအောင်မြင်ပါ။");
+          }
+        } catch (err) {
+          status.style.color = "red";
+          status.innerText = "❌ " + err.message;
+          pContainer.style.display = "none";
+        } finally {
+          uploadBtn.disabled = false;
+        }
+      }
+      // ✨ Subdomain (qzz.io) မှာပါ လမ်းကြောင်းမလွဲဘဲ swelnthet.qzz.io/upload လို့ ပေါ်စေမည့် ကုဒ်ဖြစ်ပါတယ်
+      if (window.location.search.includes("page=upload")) {
+        // လမ်းကြောင်းအပြည့်အစုံဖြစ်တဲ့ /upload ကို လက်ရှိ Subdomain ပါဝင်တဲ့ URL အနောက်မှာပဲ ကပ်ခိုင်းလိုက်တာပါ
+        window.history.replaceState(
+          null,
+          "",
+          window.location.pathname.replace("admin.html", "upload"),
+        );
+      }
+
+      // ဝဘ်ဆိုက် ပွင့်လာတာနဲ့ ဒီနေ့ရက်စွဲကို အော်တို ရွေးခိုင်းမည့်စနစ်
+      document.addEventListener("DOMContentLoaded", () => {
+        const dateInput = document.getElementById("m-date");
+
+        // စက်ရဲ့ လက်ရှိအချိန်ကနေ YYYY-MM-DD ပုံစံ ရက်စွဲကို တွက်ထုတ်ခြင်း
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0"); // ဇန်နဝါရီက 0 ကစလို့ 1 ပေါင်းပေးရပါတယ်
+        const dd = String(today.getDate()).padStart(2, "0");
+
+        const formattedToday = `${yyyy}-${mm}-${dd}`;
+
+        // input ထဲသို့ ရက်စွဲ အလိုအလျောက် ထည့်သွင်းခြင်း
+        dateInput.value = formattedToday;
+
+        // ရက်စွဲဝင်သွားတာနဲ့ မြန်မာလို ရက်စွဲ Preview ပြောင်းလဲပေးသည့် Function ကို လှမ်းခေါ်ခြင်း
+        if (typeof previewMyanmarDate === "function") {
+          previewMyanmarDate();
+        }
+      });
+
+      // ✨ Noti Overlay ကို လှမ်းခေါ်ပြသပေးမည့် စနစ်
+      // ✨ Noti Overlay ကို လှမ်းခေါ်ပြသပေးမည့် စနစ်
+      function showNoti(message, type = "warn", showButton = true) {
+        const overlay = document.getElementById("noti-overlay");
+        const text = document.getElementById("noti-text");
+        const icon = document.getElementById("noti-icon");
+        const closeBtn = document.getElementById("noti-close-btn");
+        const pContainer = document.getElementById("p-container"); // ✨ ထပ်တိုး
+
+        text.innerText = message;
+        closeBtn.style.display = showButton ? "block" : "none";
+
+        // Type အလိုက် Icon နှင့် ခလုတ်အရောင် ခွဲခြားခြင်း
+        if (type === "success") {
+          icon.innerText = "🎉";
+          closeBtn.style.background = "green";
+          pContainer.style.display = "none"; // အောင်မြင်သွားရင် bar ကို ဖျောက်မည်
+        } else if (type === "error") {
+          icon.innerText = "❌";
+          closeBtn.style.background = "#dc3545";
+          pContainer.style.display = "none"; // Error ပြရင် bar ကို ဖျောက်မည်
+        } else {
+          icon.innerText = "⚠️";
+          closeBtn.style.background = "#b30000";
+          // 💡 ဖိုင်တင်နေချိန် (Loading ပြနေချိန်) တွင်သာ Progress Bar Container ကို Noti ထဲ ထည့်ပြမည်
+          if (!showButton && message.includes("ဖိုင်")) {
+            pContainer.style.display = "block";
+          } else {
+            pContainer.style.display = "none";
+          }
+        }
+
+        overlay.style.display = "flex";
+      }
+
+      // Noti Box ပြန်ပိတ်ရန် စနစ်
+      function closeNoti() {
+        document.getElementById("noti-overlay").style.display = "none";
+        // 💡 Noti ပိတ်လိုက်တိုင်း Progress Bar တန်းကိုပါ တစ်ခါတည်း reset ပြန်ချပေးခြင်း
+        document.getElementById("p-container").style.display = "none";
+        document.getElementById("p-bar").style.width = "0%";
+      }
+    </script>
+  </body>
+</html>

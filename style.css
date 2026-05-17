@@ -1,0 +1,772 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Noto+Serif+Myanmar:wght@400;700&display=swap");
+
+@font-face {
+  font-family: "MyCustomFont"; /* ကိုယ်ပေးချင်တဲ့ နာမည်ပေးပါ */
+  src: url("assets/myFont.ttf") format("truetype"); /* ဖိုင်လမ်းကြောင်း မှန်အောင် ထည့်ပါ */
+  font-weight: bold;
+  font-style: normal;
+}
+:root {
+  --ink: #2b2b2b;
+  --accent: #b30000;
+  --paper-bg: #d9c5a3;
+  --body-bg: linear-gradient(135deg, #fff5f7 0%, #f8c1e9 100%);
+  --texture: url("https://lh3.googleusercontent.com/u/0/d/1z9Z6mcwUwOtqMQmB61R2GzVKnfN6Eg6r");
+}
+
+/* --- LOADING OVERLAY --- */
+#loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--body-bg);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 1s ease-out;
+}
+
+header {
+  background-image: url("https://lh3.googleusercontent.com/u/0/d/1z9Z6mcwUwOtqMQmB61R2GzVKnfN6Eg6r");
+}
+
+/* --- MAIN CONTENT --- */
+#main-content {
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+#main-content.show {
+  opacity: 1;
+}
+
+body {
+  background-color: var(--body-bg);
+  font-family: "MyCustomFont", "Noto Serif Myanmar", serif;
+  margin: 0;
+  color: var(--ink);
+  overflow-x: hidden;
+}
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 30px 15px 120px;
+}
+
+section {
+  opacity: 0;
+  transform: translateY(50px);
+  filter: blur(10px);
+  transition: all 1.2s ease;
+  margin-bottom: 30px;
+}
+section.visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.newspaper-card {
+  background-color: var(--paper-bg);
+  background-image: var(--texture);
+  padding: 25px 20px 40px 20px;
+  border: 1px solid #8e734c;
+  position: relative;
+  /*
+            clip-path: polygon(1% 2%, 99% 1%, 100% 97%, 96% 95%, 92% 98%, 50% 96%, 8% 100%, 0% 98%, 2% 50%);
+            */
+  /* ညာဘက်အောက်ခြေကို Point ပိုထုတ်ထားတဲ့ Polygon */
+  clip-path: polygon(
+    1% 2%,
+    99% 1%,
+    100% 98%,
+    /* အောက်ခြေအထိ ဆွဲဆန့်လိုက်သည် */ 96% 97%,
+    /* အထဲဝင်နေတာကို လျှော့လိုက်သည် */ 92% 99%,
+    50% 97%,
+    8% 100%,
+    0% 98%,
+    2% 50%
+  );
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+  /* ... အခြား code များ ... */
+  padding-bottom: 25px; /* အောက်ခြေမှာ နေရာပိုပေးရန် */
+  padding-right: 15px; /* ညာဘက်မှာ နေရာပိုပေးရန် */
+  overflow: hidden; /* စာသားတွေ အပြင်မထွက်စေရန် */
+}
+
+/* ညာဘက်အောက်က location နဲ့ date စာသားအတွက် */
+.card-footer {
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
+  font-size: 0.8rem;
+  /* စာသားတွေ clip-path ထဲ မပါသွားအောင် margin နည်းနည်းပေးထားပါ */
+  margin-bottom: 5px;
+}
+
+.story-info-bottom {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: bold;
+  opacity: 0.9;
+}
+.page-number {
+  position: absolute;
+  bottom: 25px;
+  left: 25px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+/*
+        .media-frame { margin-bottom: 25px; background: #fff; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+        .media-frame img, .media-frame video { width: 100%; display: block; object-fit: cover; }
+        .carousel-container { margin-bottom: 15px; overflow: hidden; position: relative; width: 100%; height: 100%; touch-action: pan-y;}
+        .carousel-track { display: flex; width: 100%; height: 100%; transition: transform 0.5s ease-in-out; }
+        .carousel-slide { min-width: 100%; height: 100%; }
+        .carousel-slide img { width: 100%; height: 100%; object-fit: cover; }
+        */
+/* Media Frame ကို ဓာတ်ပုံဟောင်း ကတ်ပြားစတိုင် ပြောင်းခြင်း */
+.media-frame {
+  margin-bottom: 25px;
+  background: #fff; /* ဓာတ်ပုံဘောင် အဖြူရောင် */
+  padding: 10px 10px 30px 10px; /* အောက်ခြေကို ပိုချန်ထားခြင်းဖြင့် Polaroid စတိုင်ရစေသည် */
+  border: 1px solid #ddd;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.2); /* ပုံကို ကြွတက်နေသယောင် shadow ထည့်ခြင်း */
+  transform: rotate(
+    -1deg
+  ); /* ပုံကို အနည်းငယ် စောင်းပေးခြင်းဖြင့် ပိုပြီး သဘာဝကျစေသည် */
+  transition: transform 0.3s ease;
+}
+
+/* ပုံကို mouse တင်လိုက်ရင် ပြန်တည့်သွားအောင်လုပ်ခြင်း */
+.media-frame:hover {
+  transform: rotate(0deg);
+}
+
+/* ပုံ/ဗီဒီယိုကို အရောင်ဟောင်း စတိုင်သွင်းခြင်း */
+.media-frame img,
+.media-frame video {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  filter: sepia(0.3) contrast(1.1) brightness(0.9); /* Sepia filter က ပုံကို ဝါညိုရောင် ဟောင်းနွမ်းသွားစေသည် */
+  border: 1px solid rgba(0, 0, 0, 0.1); /* ပုံရဲ့ အနားသတ်ကို အနည်းငယ် ထင်ရှားစေရန် */
+}
+
+/* အနားသတ်တွေကို အနည်းငယ် ဝိုင်းပေးခြင်း */
+.media-frame,
+.media-frame img,
+.media-frame video {
+  border-radius: 5px;
+}
+/* Carousel Container ကို Polaroid စတိုင်ပြောင်းခြင်း */
+/* Carousel Container ကို အချိုးကျ ပြင်ဆင်ခြင်း */
+/* Carousel Container ပြင်ဆင်ချက် */
+/* Carousel Container ကို အတိအကျ ထိန်းညှိခြင်း */
+/* Stacked Carousel Container */
+.carousel-container {
+  margin-bottom: 2px;
+  position: relative;
+  width: 100%;
+  height: 380px; /* အမြင့်ကို ပုံသေထားမှ အထပ်လိုက်ဖြစ်နေတာ မြင်ရမှာပါ */
+  background: transparent;
+  perspective: 1000px; /* 3D ဆန်ဆန် မြင်ရစေရန် */
+  touch-action: pan-y; /* ဗီဒီယိုကြည့်သလို အပေါ်အောက် scroll ဆွဲတာကို မနှောင့်ယှက်အောင်ပါ */
+  user-select: none;
+  border-radius: 5px;
+}
+
+.carousel-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Slide တစ်ခုချင်းစီကို Card ပုံစံလုပ်ခြင်း */
+.carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 90%; /* အောက်ကပုံတွေ မြင်သာအောင် အမြင့်ကို နည်းနည်းလျှော့ထားပါသည် */
+  background: #fff;
+  padding: 5px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  transform: translateY(20px) scale(0.9); /* အောက်မှာ စုနေမည့်ပုံစံ */
+  z-index: 0;
+}
+
+/* Active ဖြစ်နေသော (အပေါ်ဆုံးရောက်နေသော) ပုံ */
+.carousel-slide.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  z-index: 10;
+}
+
+/* နောက်မှာ ရောက်နေမည့်ပုံ (အရိပ်အယောင်လေး မြင်ရအောင်) */
+.carousel-slide.next {
+  opacity: 0.5;
+  transform: translateY(15px) scale(0.95);
+  z-index: 5;
+}
+
+.carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ပုံမူရင်းအတိုင်း ပြရန် */
+  filter: sepia(0.1);
+}
+
+/* အသည်းပုံ Dots */
+.carousel-dots {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  z-index: 20;
+}
+
+.story-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 15px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+  padding-bottom: 10px;
+}
+.story-content {
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: justify;
+  margin-bottom: 10px;
+  text-indent: 40px;
+}
+
+#sentinel {
+  height: 50px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.5;
+  padding: 20px 0;
+}
+
+.counter-item {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.counter-item span {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.counter-item label {
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.sep {
+  margin: 0 15px;
+  color: rgba(179, 0, 0, 0.2);
+  font-weight: 100;
+  font-size: 18px;
+}
+
+.header-intro {
+  max-width: 500px; /* စာကြောင်း အရှည်ကြီး ဖြစ်မသွားအောင် */
+  margin: 20px auto 0 auto;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--ink);
+  opacity: 0.85;
+  font-style: italic; /* အနည်းငယ် စောင်းထားရင် ပိုကြည့်ကောင်းပါတယ် */
+  padding: 0 20px;
+  position: relative;
+}
+
+/* စာသားရဲ့ ထိပ်နဲ့ အောက်မှာ မျဉ်းတိုလေး ခံချင်ရင် (Optional) */
+.header-intro::before,
+.header-intro::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+  margin: 10px auto;
+  opacity: 0.3;
+}
+
+/* Vertical Timeline Container */
+/* Vertical Timeline Container */
+#nav-timeline {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+/* Indicator (စာသား + အသည်းနီ သီးသန့်) */
+#timeline-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition:
+    opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.8s ease;
+}
+
+#timeline-date-display {
+  background: var(--accent);
+  color: white;
+  padding: 6px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(179, 0, 0, 0.3);
+}
+
+.indicator-heart {
+  color: var(--accent);
+  font-size: 20px;
+  filter: drop-shadow(0 0 8px rgba(179, 0, 0, 0.5));
+}
+
+/* မျဉ်းကြောင်းနှင့် အစက်များကို လုံးဝဖျောက်ထားခြင်း */
+.timeline-track-wrapper,
+#timeline-track {
+  display: none;
+}
+
+/* memories list နဲ့ sentinel ကို အစမှာ ဖျောက်ထားရန် */
+/* Button ကို အလယ်တည့်တည့်ဖြစ်အောင် ပြင်ဆင်ခြင်း */
+.view-btn {
+  display: block; /* block ပြောင်းမှ margin: auto အလုပ်လုပ်မှာပါ */
+  margin: 30px auto 0 auto;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  user-select: none;
+  font-family: "MyCustomFont", "Noto Serif Myanmar", serif;
+  font-size: 16px;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 3px 4px 15px #b30000;
+  transition: all 0.3s ease;
+}
+
+/* Memories list ကို Animation ထည့်ရန် ပြင်ဆင်ခြင်း */
+#story-list {
+  display: none;
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 1.5s ease,
+    transform 1.5s ease; /* ပေါ်လာမည့် ကြာချိန် */
+}
+
+/* Animation စတင်စေရန် class */
+#story-list.reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.view-btn:active {
+  transform: scale(0.95);
+}
+
+/* Counter စာသားတစ်ခုလုံးအတွက် Style */
+.counter-sentence {
+  font-family: "MyCustomFont", "Noto Serif Myanmar", serif;
+  font-size: 18px;
+  color: var(--ink);
+  margin-top: 20px;
+  line-height: 1.6;
+  padding: 0 15px;
+  opacity: 0.9;
+}
+
+/* ဂဏန်းလေးများကို အနီရောင်ဖြင့် ပေါ်လွင်စေရန် */
+.count-val {
+  color: var(--accent);
+  font-weight: bold;
+  font-size: 22px; /* ဂဏန်းကို စာသားထက် နည်းနည်းပိုကြီးထားခြင်း */
+  margin: 0 2px;
+}
+
+/* အနောက်က အသည်းပုံလေးအတွက် */
+.heart-inline {
+  color: var(--accent);
+  display: inline-block;
+  animation: heartBeat 1.5s infinite;
+  margin-left: 5px;
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.koko {
+  text-align: right;
+  margin-right: 25px;
+  font-style: italic;
+}
+
+header {
+  background-color: #fdfaf6; /* သန့်ရှင်းတဲ့ စက္ကူရောင်ဖျော့ဖျော့ */
+  padding: 40px 30px;
+  margin: 20px auto 40px auto;
+  max-width: 90%;
+  border-radius: 15px; /* အနားလေးတွေကို အနည်းငယ် ဝိုင်းလိုက်ခြင်း */
+  border: 1px solid rgba(0, 0, 0, 0.05); /* ခပ်ဖျော့ဖျော့ ဘောင်လေး */
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* နူးညံ့တဲ့ အရိပ်လေး */
+
+  /* အရင်က သုံးထားတဲ့ clip-path တွေကို လုံးဝဖြုတ်လိုက်ပါပြီ */
+  clip-path: none;
+  filter: none;
+  transform: none;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+.header-intro {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+  opacity: 0.8;
+  margin-bottom: 25px;
+  font-style: italic;
+  padding: 0 10px;
+}
+
+/* Counter စာသားအတွက် Style */
+.counter-sentence {
+  font-size: 16px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  padding-top: 20px;
+  color: var(--ink);
+}
+
+.count-val {
+  color: var(--accent);
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.heart-inline {
+  color: var(--accent);
+  display: inline-block;
+  animation: heartBeat 1.5s infinite;
+}
+
+header h1,
+header .title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 15px;
+}
+
+#loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  /* အနောက်ကို ဖောက်မြင်ရစေရန် transparent ထားမည် */
+  background-color: rgba(253, 250, 246, 0.4);
+
+  /* အနောက်က background ကို ဝါးပစ်ရန် (ဒါက အဓိကပဲ!) */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000 !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.loading-icon {
+  width: 80px;
+  height: auto;
+  animation: blinkEffect 1.2s ease-in-out infinite;
+}
+
+@keyframes blinkEffect {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.9);
+  }
+}
+
+button,
+a,
+.btn,
+img {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+img {
+  /* ပုံကို ဖိထားရင် menu တက်မလာအောင် ပိတ်ခြင်း */
+  -webkit-touch-callout: none;
+  /* ပုံကို select ပေးလို့မရအောင် ပိတ်ခြင်း */
+  -webkit-user-select: none;
+  user-select: none;
+  /* ပုံကို ဆွဲမသွားနိုင်အောင် (Drag) ပိတ်ခြင်း */
+  -webkit-user-drag: none;
+}
+
+/* button နဲ့ input တွေမှာပါ သတ်မှတ်ထားတဲ့ font ကို သုံးခိုင်းခြင်း */
+button,
+input,
+select,
+textarea {
+  font-family:
+    "MyCustomFont", "Noto Serif Myanmar", serif; /* သင်သုံးထားတဲ့ Font နာမည် ထည့်ပါ */
+}
+
+/* Password Screen ထဲက ခလုတ်ကို သီးသန့် ပြင်ချင်ရင် */
+#password-screen button {
+  font-family: "MyCustomFont", "Noto Serif Myanmar", serif;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+#password-screen input {
+  font-family: "MyCustomFont", "Noto Serif Myanmar", serif;
+}
+
+/* --- PIN SCREEN DESIGN --- */
+.pin-dots-container {
+  display: flex; /* အလျားလိုက် တန်းစီခိုင်းခြင်း */
+  justify-content: center; /* အလယ်မှာ စုပေးခြင်း */
+  gap: 20px; /* အစက်လေးများ ကြားအကွာအဝေး */
+  margin-bottom: 30px; /* အောက်က နံပါတ်ကွက်နဲ့ ခွာထားရန် */
+  width: 100%; /* အကျယ် အပြည့်ယူရန် */
+}
+/* PIN Code ပြမည့် အစက်လေးများ */
+.pin-dot {
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  transition: background 0.4s ease;
+}
+
+/* PIN ရိုက်လိုက်ရင် အစက်လေးတွေ ပြည့်သွားစေရန် */
+.pin-dot.filled {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* PIN Button များ (၁၊ ၂၊ ၃ ... ၀) */
+.pin-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: "MyCustomFont", sans-serif;
+  outline: none;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px); /* Background ဝါးဝါးလေးဖြစ်စေရန် */
+}
+
+/* Button နှိပ်လိုက်ရင် အရောင်ပြောင်းရန် (Active Effect) */
+.pin-btn:active {
+  background-color: var(--accent);
+  color: var(--accent);
+  transform: scale(0.95);
+  border-color: var(--accent);
+}
+
+/* Delete Button ကို သီးသန့် Design ပေးခြင်း */
+.pin-btn.delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  backdrop-filter: none;
+}
+
+.pin-btn.delete-btn:active {
+  background: transparent;
+  transform: scale(0.9);
+}
+
+/* PIN ခလုတ်တွေကို နှိပ်ရင် အပြာရောင် highlight မပေါ်စေရန် */
+.pin-btn {
+  -webkit-tap-highlight-color: transparent; /* Android/iOS အတွက် အပြာရောင်ဖျောက်ခြင်း */
+  outline: none;
+  user-select: none; /* စာသားကို select ပေးလို့မရအောင် ပိတ်ခြင်း */
+  -webkit-user-select: none;
+}
+
+/* Error Message အတွက် Font နဲ့ အရောင်ကို သေချာသတ်မှတ်ခြင်း */
+#error-msg {
+  font-family: "MyCustomFont", "Noto Serif Myanmar", sans-serif;
+  color: #ff4d4d; /* ပိုလင်းတဲ့ အနီရောင် */
+  font-weight: bold;
+  min-height: 20px; /* စာသားမရှိတဲ့အချိန်မှာလည်း နေရာလွတ်ယူထားရန် */
+}
+
+.pin-btn {
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none !important;
+  border: none;
+  cursor: pointer;
+}
+
+/* နှိပ်လိုက်ရင် အပြာရောင်မပေါ်ဘဲ ကျုံ့သွားတဲ့ effect ပဲပြမယ် */
+.pin-btn:active {
+  background-color: rgba(179, 0, 0, 0.2) !important;
+  transform: scale(0.9);
+  outline: none;
+}
+
+/* စာသား အားလုံးကို select ပေးလို့မရအောင် ပိတ်ခြင်း */
+#password-screen * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Password Screen ကို အလယ်တည့်တည့် ပို့ခြင်း */
+#password-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* ဖုန်း screen အကျယ် ၁၀၀% */
+  height: 100vh; /* ဖုန်း screen အမြင့် ၁၀၀% */
+  background: var(--body-bg);
+  z-index: 9500;
+  display: none; /* JS ကနေ flex ပြောင်းပေးပါလိမ့်မယ် */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box; /* Padding ကြောင့် width မကျော်သွားအောင် ထိန်းပေးသည် */
+  margin: 0;
+  padding: 20px;
+}
+
+/* အတွင်းက ပစ္စည်းများအတွက် Style များ */
+.login-logo {
+  width: 60px;
+  height: auto;
+  margin-bottom: 10px;
+  border-radius: 50%;
+}
+
+.login-title {
+  color: var(--accent);
+  font-family: "MyCustomFont", sans-serif;
+  margin-bottom: 5px;
+  font-size: 22px;
+}
+
+.error-text {
+  height: 25px;
+  color: #ff4d4d;
+  font-family: "MyCustomFont", sans-serif;
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  visibility: hidden;
+}
+
+/* Pin Pad Grid ကို အလယ်ရောက်အောင် ထိန်းညှိခြင်း */
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    70px
+  ); /* 70px စီ ပုံသေထားလိုက်တာ ပိုငြိမ်ပါတယ် */
+  gap: 15px;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+/* --- IMAGE LOADING SMOOTH TRANSITION --- */
+
+/* ပုံတွေ မတက်ခင် သို့မဟုတ် Load ဖြစ်နေစဉ် လုံးဝ ဖျောက်ထားရန် */
+img {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out; /* ပုံပေါ်လာရင် ဖျတ်ခနဲမပေါ်ဘဲ ဖြည်းဖြည်းချင်း လင်းလာစေရန် */
+}
+
+/* ပုံ Download ဆွဲလို့ ပြီးသွားရင် ပြန်ဖော်ရန် */
+img.loaded {
+  opacity: 1;
+}

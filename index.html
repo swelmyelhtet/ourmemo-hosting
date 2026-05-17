@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="my">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="manifest" href="manifest.json" />
+
+    <link rel="apple-touch-icon" href="assets/icon512.png" />
+
+    <link rel="icon" sizes="512x512" href="assets/icon512.png" />
+
+    <meta name="theme-color" content="#b30000" />
+
+    <title>S&T Memories</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div id="password-screen">
+      <img src="assets/icon512.png" alt="Logo" class="login-logo" />
+      <h2 class="login-title">ကိုကိုတို့ ကမ္ဘာလေးထဲသို့ ဝင်ရန်</h2>
+
+      <div id="error-msg" class="error-text">
+        Password မှားနေတယ်နော် သဲသဲ ❤️
+      </div>
+
+      <div class="pin-dots-container">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+
+      <div class="pin-pad">
+        <button class="pin-btn" onclick="addNumber('1')">1</button>
+        <button class="pin-btn" onclick="addNumber('2')">2</button>
+        <button class="pin-btn" onclick="addNumber('3')">3</button>
+        <button class="pin-btn" onclick="addNumber('4')">4</button>
+        <button class="pin-btn" onclick="addNumber('5')">5</button>
+        <button class="pin-btn" onclick="addNumber('6')">6</button>
+        <button class="pin-btn" onclick="addNumber('7')">7</button>
+        <button class="pin-btn" onclick="addNumber('8')">8</button>
+        <button class="pin-btn" onclick="addNumber('9')">9</button>
+        <div style="width: 70px"></div>
+        <button class="pin-btn" onclick="addNumber('0')">0</button>
+        <button class="pin-btn delete-btn" onclick="deleteNumber()">⌫</button>
+      </div>
+    </div>
+    <div id="loading-overlay">
+      <img src="assets/icon512.png" class="loading-icon" alt="Loading..." />
+    </div>
+    <nav id="nav-timeline">
+      <div id="timeline-indicator">
+        <div id="timeline-date-display">--</div>
+        <div class="indicator-heart">❤</div>
+      </div>
+    </nav>
+    <div id="main-content">
+      <div class="container">
+        <header>
+          <div
+            style="
+              font-size: 28px;
+              margin-left: 20px;
+              font-weight: 700;
+              color: var(--ink);
+              text-transform: uppercase;
+              letter-spacing: 3px;
+              margin-bottom: 15px;
+            "
+          >
+            ဟယ်လို သဲသဲ..
+          </div>
+
+          <div class="counter-sentence">
+            ဒီနေ့ဆို ကိုကိုတို့ အတူတူရှိခဲ့တာ
+            <span id="counter-text" class="count-val">တွက်ချက်နေသည်...</span>
+            တောင် ရှိပြီနော်..
+            နောင်နှစ်ပေါင်းများစွာတိုင်အောင်အတူတူရှိနိုင်အောင်
+            ကြိုးစားကြမယ်နော်.. သိပ်ချစ်တယ်နော် သဲသဲ ..
+            <span class="heart-inline">❤</span>
+          </div>
+
+          <div class="header-intro">
+            "ကံကြမ္မာရဲ့ တိုက်ဆိုင်မှုတစ်ခုကနေ အစပြုခဲ့တဲ့
+            ကိုကိုတို့နှစ်ယောက်ရဲ့ ပုံပြင်လေး။ ဒီစာမျက်နှာတွေဟာ ကိုယ်တို့အတူတူ
+            ဖြတ်သန်းခဲ့တဲ့ အမှတ်တရတွေနဲ့ မြတ်နိုးမှုတွေကို သိမ်းဆည်းထားတဲ့
+            ကိုကိုနဲ့သဲသဲ ရဲ့ ကိုယ်ပိုင်ကမ္ဘာလေးပေါ့။"
+          </div>
+          <div class="koko">သဲသဲရဲ့ ကိုကို</div>
+          <div
+            style="
+              display: flex;
+              gap: 15px;
+              justify-content: center;
+              margin-top: 20px;
+            "
+          >
+            <button id="view-memories-btn" class="view-btn" style="margin: 0">
+              အမှတ်တရများ
+            </button>
+
+            <button
+              onclick="window.location.href = 'upload/'"
+              class="view-btn"
+              style="margin: 0; background: #fff; color: #b30000"
+            >
+              တင်မည်
+            </button>
+          </div>
+        </header>
+        <div id="story-list"></div>
+        <div id="sentinel">❤</div>
+      </div>
+    </div>
+  </body>
+</html>
