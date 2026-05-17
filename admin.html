@@ -13,6 +13,7 @@
     <link rel="icon" sizes="512x512" href="assets/icon512.png" />
 
     <meta name="theme-color" content="#b30000" />
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
     <style>
       .admin-container {
         max-width: 500px;
@@ -85,7 +86,7 @@
         font-weight: bold;
         cursor: pointer;
         transition: all 0.2s;
-        margin-top: 10px
+        margin-top: 10px;
       }
       .submit-btn:active {
         transform: scale(0.98);
@@ -520,35 +521,60 @@
         const status = document.getElementById("status-msg");
         const files = fileInput.files;
 
-        if (files.length === 0) return true;
+        // ဖိုင်မရွေးထားရင် ခလုတ်စာသားကို မူလအတိုင်း ပြန်ထားပြီး Return ပြန်မည်
+        if (files.length === 0) {
+          document.getElementById("file-label").innerText =
+            "+ ဖိုင်ရွေးချယ်ရန်";
+          return true;
+        }
+
+        const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
 
         for (let i = 0; i < files.length; i++) {
-          const fileType = files[i].type;
+          const file = files[i];
+          const fileType = file.type;
 
-          // မူရင်းကုဒ်ထဲက status.innerText = ... နေရာများတွင် showNoti ကို အစားထိုးပါ
           if (selectedType === "image" && !fileType.startsWith("image/")) {
             showNoti("ဓာတ်ပုံဖိုင်ကိုသာ ရွေးချယ်ပေးပါ။", "warn", true);
             fileInput.value = "";
+            document.getElementById("file-label").innerText =
+              "+ ဖိုင်ရွေးချယ်ရန်";
             return false;
           }
-          if (selectedType === "video" && !fileType.startsWith("video/")) {
-            showNoti("ဗီဒီယိုဖိုင်ကိုသာ ရွေးချယ်ပေးပါ။", "warn", true);
-            fileInput.value = "";
-            return false;
+          if (selectedType === "video") {
+            if (!fileType.startsWith("video/")) {
+              showNoti("ဗီဒီယိုဖိုင်ကိုသာ ရွေးချယ်ပေးပါ။", "warn", true);
+              fileInput.value = "";
+              document.getElementById("file-label").innerText =
+                "+ ဖိုင်ရွေးချယ်ရန်";
+              return false;
+            }
+            if (file.size > MAX_VIDEO_SIZE) {
+              showNoti(
+                `၅၀ MB ထက်ငယ်သော ဖိုင်ကိုသာ ရွေးချယ်ပေးပါ။`,
+                "error",
+                true,
+              );
+              fileInput.value = "";
+              document.getElementById("file-label").innerText =
+                "+ ဖိုင်ရွေးချယ်ရန်";
+              return false;
+            }
           }
         }
-        // ✨ [ဖြည့်စွက်ကုဒ်] ရွေးချယ်လိုက်သော ဖိုင်နာမည်ကို ခလုတ်ပေါ်တွင် ပြောင်းလဲပြသပေးမည့်စနစ်
+
+        // ✨ [ဒီနေရာက ကုဒ်အရေးကြီးပါသည်] ဖိုင်နာမည်ကို ခလုတ်ပေါ်တွင် ပြောင်းလဲပြသပေးမည့်စနစ်
         const fileLabel = document.getElementById("file-label");
         if (files.length === 1) {
-          // ဖိုင် ၁ ပုံတည်းဆိုလျှင် ဖိုင်နာမည်ကို တိုက်ရိုက်ပြပါမည်
+          // ဖိုင် ၁ ခုတည်းဆိုလျှင် ၎င်းဖိုင်နာမည်ကို တိုက်ရိုက်ပြမည်
           fileLabel.innerText = `${files[0].name}`;
         } else if (files.length > 1) {
-          // ဖိုင်အများကြီးဆိုလျှင် အရေအတွက်ကို ပြပေးပါမည်
+          // ဖိုင်အများကြီးဆိုလျှင် အရေအတွက်ကို ပြပေးမည်
           fileLabel.innerText = `(${files.length} ဖိုင်) ရွေးချယ်ပြီးပါပြီ`;
         } else {
-          // ဖိုင်မရှိလျှင် မူလစာသားအတိုင်း ပြန်ပြောင်းပါမည်
           fileLabel.innerText = "+ ဖိုင်ရွေးချယ်ရန်";
         }
+
         status.innerText = "";
         return true;
       }
@@ -666,10 +692,30 @@
           if (selectedMediaType !== "text") {
             // ၁။ ဖိုင်များကို Assets Folder ထဲ တင်ခြင်း
             for (let i = 0; i < files.length; i++) {
-              const file = files[i];
+              let file = files[i]; // const နေရာတွင် let ပြောင်းပါမည်
               const timestamp = Date.now() + i;
-              const extension = file.name.split(".").pop();
+              let extension = file.name.split(".").pop(); // const နေရာတွင် let ပြောင်းပါမည်
 
+              // 📸 [ထပ်တိုး] ဓာတ်ပုံဆိုလျှင် GitHub ပေါ်မတင်မီ အော်တိုဆိုက်ချုံ့ပေးမည့်အပိုင်း
+              if (selectedMediaType === "image") {
+                const compressOptions = {
+                  maxSizeMB: 1, // ပုံဆိုက်ကို အများဆုံး 1MB ဝန်းကျင်အထိ ချုံ့ပစ်မည်
+                  maxWidthOrHeight: 1920, // Full HD Size ထက် မကျော်အောင် ထိန်းပေးမည်
+                  useWebWorker: true,
+                };
+
+                showNoti(
+                  `⏳ လုပ်ဆောင်နေပါသည်။`,
+                  "warn",
+                  false,
+                );
+                try {
+                  file = await imageCompression(file, compressOptions);
+                  extension = "jpg"; // Format အမှန်ရစေရန် standard ပြောင်းလဲခြင်း
+                } catch (compressErr) {
+                  console.error("Image compression error:", compressErr);
+                }
+              }
               const newFileName = `img_${timestamp}.${extension}`;
               const targetPath = `assets/${newFileName}`;
 
